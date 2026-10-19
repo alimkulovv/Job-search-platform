@@ -1,34 +1,43 @@
-<script setup>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-
-const store = useStore()
-const router = useRouter()
-const isAuth = computed(() => store.getters['auth/isAuthenticated'])
-const user = computed(() => store.state.auth.user)
-
-function logout() {
-  store.dispatch('auth/logout')
-  router.push({ name: 'login' })
-}
-</script>
-
 <template>
   <header class="header">
-    <RouterLink to="/jobs" class="logo">💼 JobFinder</RouterLink>
+    <RouterLink to="/jobs" class="logo">
+      <span class="logo-badge">JF</span>
+      <span class="logo-text">Job<b>Finder</b></span>
+    </RouterLink>
+
     <nav v-if="isAuth">
       <RouterLink to="/jobs">Вакансии</RouterLink>
       <RouterLink to="/favorites">Избранное</RouterLink>
       <RouterLink to="/applications">Мои отклики</RouterLink>
     </nav>
+
     <div class="user" v-if="isAuth">
-      <span>👤 {{ user?.firstName }}</span>
+      <span>👤 {{ userName }}</span>
       <button @click="logout">Выйти</button>
     </div>
     <RouterLink v-else to="/login" class="user">Войти</RouterLink>
   </header>
 </template>
+
+<script>
+export default {
+  computed: {
+    isAuth() {
+      return this.$store.getters['auth/isAuthenticated']
+    },
+    userName() {
+      const user = this.$store.state.auth.user
+      return user ? user.firstName : ''
+    }
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch('auth/logout')
+      this.$router.push('/login')
+    }
+  }
+}
+</script>
 
 <style scoped>
 .header {
@@ -39,7 +48,26 @@ function logout() {
   background: linear-gradient(90deg, #4f46e5, #7c3aed);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
-.logo { color: #fff; font-size: 20px; font-weight: 700; }
+.logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+.logo-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  color: #4f46e5;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  transform: rotate(-6deg);
+  transition: transform .2s;
+}
+.logo:hover .logo-badge { transform: rotate(0deg) scale(1.08); }
+.logo-text { font-size: 20px; font-weight: 400; letter-spacing: .3px; }
+.logo-text b { font-weight: 800; }
 nav { display: flex; gap: 20px; }
 nav a { color: rgba(255, 255, 255, 0.8); font-weight: 500; padding-bottom: 2px; }
 nav a:hover { color: #fff; }
