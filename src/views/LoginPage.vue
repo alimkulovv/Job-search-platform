@@ -1,33 +1,48 @@
-<!-- LoginPage.vue -->
-<script setup>
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter, useRoute } from 'vue-router'
-import AppError from '@/components/AppError.vue'
-
-const store = useStore()
-const router = useRouter()
-const route = useRoute()
-
-const username = ref('emilys')
-const password = ref('emilyspass')
-const loading = computed(() => store.state.auth.loading)
-const error = computed(() => store.state.auth.error)
-
-async function submit() {
-  try {
-    await store.dispatch('auth/login', { username: username.value, password: password.value })
-    router.push(route.query.redirect || '/jobs')
-  } catch { /* ошибка уже в сторе */ }
-}
-</script>
-
 <template>
-  <div class="login">
+  <div class="login card">
     <h1>Вход</h1>
-    <input v-model="username" placeholder="Логин" />
-    <input v-model="password" type="password" placeholder="Пароль" />
-    <button :disabled="loading" @click="submit">{{ loading ? 'Входим...' : 'Войти' }}</button>
-    <AppError v-if="error" :message="error" />
+    <form @submit.prevent="submit">
+      <input v-model="username" placeholder="Логин" />
+      <input v-model="password" type="password" placeholder="Пароль" />
+      <p v-if="formError" class="error">{{ formError }}</p>
+      <p v-if="serverError" class="error">{{ serverError }}</p>
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Входим...' : 'Войти' }}
+      </button>
+    </form>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      username: 'emilys',
+      password: 'emilyspass',
+      formError: ''
+    }
+  },
+  computed: {
+    loading() { return this.$store.state.auth.loading },
+    serverError() { return this.$store.state.auth.error }
+  },
+  methods: {
+    async submit() {
+      this.formError = ''
+      if (!this.username || !this.password) {
+        this.formError = 'Введите логин и пароль'
+        return
+      }
+      try {
+        await this.$store.dispatch('auth/login', {
+          username: this.username,
+          password: this.password
+        })
+        this.$router.push(this.$route.query.redirect || '/jobs')
+      } catch (e) {
+        // ошибка уже записана в сторе
+      }
+    }
+  }
+}
+</script>
