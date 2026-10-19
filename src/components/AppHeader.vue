@@ -16,17 +16,35 @@ function logout() {
 
 <template>
   <header class="header">
-    <RouterLink to="/jobs">Вакансии</RouterLink>
-    <template v-if="isAuth">
+    <RouterLink to="/jobs" class="logo">💼 JobFinder</RouterLink>
+    <nav v-if="isAuth">
+      <RouterLink to="/jobs">Вакансии</RouterLink>
       <RouterLink to="/favorites">Избранное</RouterLink>
       <RouterLink to="/applications">Мои отклики</RouterLink>
-      <span>{{ user?.firstName }}</span>
+    </nav>
+    <div class="user" v-if="isAuth">
+      <span>👤 {{ user?.firstName }}</span>
       <button @click="logout">Выйти</button>
-    </template>
-    <RouterLink v-else to="/login">Войти</RouterLink>
+    </div>
+    <RouterLink v-else to="/login" class="user">Войти</RouterLink>
   </header>
 </template>
 
 <style scoped>
-.header { display: flex; gap: 16px; align-items: center; padding: 12px 24px; border-bottom: 1px solid #ddd; }
+.header {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 32px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+.logo { color: #fff; font-size: 20px; font-weight: 700; }
+nav { display: flex; gap: 20px; }
+nav a { color: rgba(255, 255, 255, 0.8); font-weight: 500; padding-bottom: 2px; }
+nav a:hover { color: #fff; }
+nav a.router-link-active { color: #fff; border-bottom: 2px solid #fff; }
+.user { margin-left: auto; display: flex; align-items: center; gap: 12px; color: #fff; }
+.user button { background: rgba(255, 255, 255, 0.2); padding: 6px 14px; }
+.user button:hover { background: rgba(255, 255, 255, 0.35); }
 </style>
