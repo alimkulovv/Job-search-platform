@@ -1,0 +1,1 @@
+<template><p class="loader">Загрузка...</p></template>
