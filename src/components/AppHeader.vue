@@ -75,4 +75,11 @@ nav a.router-link-active { color: #fff; border-bottom: 2px solid #fff; }
 .user { margin-left: auto; display: flex; align-items: center; gap: 12px; color: #fff; }
 .user button { background: rgba(255, 255, 255, 0.2); padding: 6px 14px; }
 .user button:hover { background: rgba(255, 255, 255, 0.35); }
+/* На узком экране переносим навигацию ниже логотипа. */
+@media (max-width: 700px) {
+  .header { flex-wrap: wrap; gap: 14px; padding: 14px 16px; }
+  nav { order: 3; width: 100%; gap: 16px; flex-wrap: wrap; }
+  .user { gap: 8px; }
+  .user span { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
 </style>

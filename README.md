@@ -1,5 +1,86 @@
-# Vue 3 + Vite
+# Job Search Platform
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Учебный проект на **Vue 3 + Vite, Vue Router, Vuex и axios**. Пользователь входит в аккаунт, ищет вакансии, сохраняет избранное и отправляет отклик с именем, email и сопроводительным письмом.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+Понятный разбор части «Избранное и отклики», схема работы, вопросы преподавателя и сценарий демонстрации находятся в [docs/DEFENSE.md](docs/DEFENSE.md). Начните с различий между Vuex, localStorage и MockAPI, затем проследите один клик по сердечку от компонента до хранилища.
+
+Код организован через Options API: обычные `data`, `computed`, `watch` и `methods`, явные проверки `if` и короткие комментарии на русском. Соответствие темам недель 1–8 силлабуса приведено в руководстве. Авторизация и проверка формы сохранены по требованиям задания и пользователя, хотя в силлабусе они отдельно идут позже.
+
+## Запуск
+
+Откройте терминал в корне проекта:
+
+```powershell
+npm install
+npm run dev
+```
+
+Перейдите по адресу, который напечатает Vite. Для входа в проекте предзаполнены учебные данные DummyJSON: `emilys` / `emilyspass`. Вход требует подключения к сервису.
+
+Проверка проекта:
+
+```powershell
+npm test
+npm run build
+```
+
+Для просмотра собранной версии: `npm run preview`. Проверки кода не заменяют проверку доступности внешнего MockAPI и отправки формы в браузере.
+
+## API и настройка MockAPI
+
+По умолчанию проект использует:
+
+| Назначение | Запрос |
+| --- | --- |
+| Авторизация | `POST https://dummyjson.com/auth/login` |
+| Список вакансий | `GET https://6ad66153f71f154ac486cef0.mockapi.io/Jobs` |
+| Одна вакансия | `GET https://6ad66153f71f154ac486cef0.mockapi.io/Jobs/:id` |
+| Мои отклики | `GET https://6ad66153f71f154ac486cef0.mockapi.io/applications?userId=...` |
+| Создание отклика | `POST https://6ad66153f71f154ac486cef0.mockapi.io/applications` |
+
+Имена ресурсов чувствительны к регистру: **`Jobs`**, **`applications`**. Если MockAPI отвечает `404` для откликов, владелец проекта должен создать ресурс `applications` или указать адрес другого проекта. Сохранение не имитируется: ошибка сервера показывается пользователю, сообщение об успехе появляется только после ответа с ID созданного отклика.
+
+При необходимости скопируйте [.env.example](.env.example) в `.env` и измените значения:
+
+```dotenv
+VITE_MOCKAPI_BASE_URL=https://ВАШ-ПРОЕКТ.mockapi.io
+VITE_APPLICATIONS_API_BASE_URL=https://ПРОЕКТ-С-ОТКЛИКАМИ.mockapi.io
+VITE_APPLICATIONS_RESOURCE=/applications
+```
+
+`VITE_APPLICATIONS_API_BASE_URL` необязателен: без него отклики используют `VITE_MOCKAPI_BASE_URL`. Если меняется только сервис откликов, оставьте общий адрес вакансий прежним. После изменения `.env` перезапустите Vite. Переменные с префиксом `VITE_` попадают в браузерную сборку; сюда нельзя помещать секретные ключи.
+
+Для вакансии используются поля `id`, `title`, `company`, `location`, `type`, `salary`, `description`. Для ресурса `applications` подготовьте поля:
+
+| Поле | Тип / назначение |
+| --- | --- |
+| `id` | ID, создаваемый MockAPI |
+| `userId` | ID пользователя DummyJSON; число или строка |
+| `jobId` | ID вакансии; число или строка |
+| `jobTitle`, `company` | Строки, снимок вакансии в момент отправки |
+| `name`, `email`, `letter` | Строки из формы |
+| `status` | Строка `submitted` |
+| `createdAt` | Дата и время в формате ISO, строка |
+
+## Структура своей части
+
+| Файл | Ответственность |
+| --- | --- |
+| [favorites.js](src/store/modules/favorites.js) | Vuex и сохранение избранного в `localStorage` |
+| [applications.js](src/store/modules/applications.js) | Загрузка и отправка откликов через axios |
+| [FavoriteButton.vue](src/components/FavoriteButton.vue) | Кнопка с входным `active` и событием `toggle` |
+| [ApplyForm.vue](src/components/ApplyForm.vue) | Поля, валидация, отправка и обратная связь |
+| [FavoritesPage.vue](src/views/FavoritesPage.vue) | Список избранного или пустое состояние |
+| [ApplicationsPage.vue](src/views/ApplicationsPage.vue) | Отклики текущего пользователя, загрузка и ошибки |
+
+Интеграция выполнена через `JobCard.vue`, `JobDetailPage.vue`, общий Vuex store, API-клиент и сброс откликов при смене аккаунта. Страницы `/favorites` и `/applications` защищены существующим роутером.
+
+Это учебная авторизация: фильтрация по `userId` в публичном MockAPI не обеспечивает серверную защиту данных. Не отправляйте реальные персональные данные. Избранное хранится в браузере общим списком, без привязки к аккаунту.
+
+## Ветка и сдача
+
+Для части «Избранное и отклики» используется ветка `feature/favorites`, созданная от общей ветки команды.
+
+Перед отправкой выполните `npm test` и `npm run build`, затем проверьте изменения через `git status` и `git diff`. Добавьте нужные файлы через `git add`, создайте коммит и отправьте ветку командой `git push -u origin feature/favorites`. Для предложения изменений в общую ветку откройте Pull Request на GitHub.
+
+По условиям PDF преподаватель проверяет личный вклад и коммиты каждого участника. Перед отправкой убедитесь, что выбран ваш GitHub-аккаунт, изменения действительно попали в нужную ветку и команда получила ссылку на неё.
