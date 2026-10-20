@@ -1,6 +1,8 @@
 ﻿<template>
   <div>
     <h1>Вакансии</h1>
+    <!-- Сообщаем, если избранное не удалось сохранить в браузере. -->
+    <p v-if="favoritesError" class="error" role="alert">{{ favoritesError }}</p>
     <input v-model="search" placeholder="Поиск по названию" />
     <select v-model="type">
       <option value="">Все типы</option>
@@ -30,6 +32,7 @@ export default {
   computed: {
     loading() { return this.$store.state.jobs.loading },
     error() { return this.$store.state.jobs.error },
+    favoritesError() { return this.$store.state.favorites.error },
     filtered() {
       return this.$store.state.jobs.list.filter(j =>
         j.title.toLowerCase().includes(this.search.toLowerCase()) &&

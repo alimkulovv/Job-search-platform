@@ -28,11 +28,13 @@ export default {
     SET_ERROR(state, error) { state.error = error }
   },
   actions: {
-    async login({ commit }, credentials) {
+    async login({ commit, dispatch }, credentials) {
       commit('SET_LOADING', true)
       commit('SET_ERROR', null)
       try {
         const res = await authApi.post('/auth/login', credentials)
+        // Убираем отклики предыдущей сессии перед новым входом.
+        await dispatch('applications/reset', null, { root: true })
         commit('SET_AUTH', { token: res.data.accessToken, user: res.data })
       } catch (e) {
         commit('SET_ERROR', 'Неверный логин или пароль')
@@ -41,8 +43,10 @@ export default {
         commit('SET_LOADING', false)
       }
     },
-    logout({ commit }) {
+    logout({ commit, dispatch }) {
       commit('CLEAR_AUTH')
+      // При выходе очищаем отклики пользователя из памяти приложения.
+      dispatch('applications/reset', null, { root: true })
     }
   }
 }
